@@ -125,7 +125,12 @@
 <!-- <script src="../camera.controller.js"></script> -->
 <script type="text/javascript">
     // Set constraints for the video stream
-    var constraints = { video: { facingMode: "environment" }, audio: false };
+    var constraints = { video: {
+                    facingMode: 'environment',
+                    width: 3264,
+                    height: 1836,
+                    aspectRatio: { ideal: 16 / 9 },
+                }, audio: false };
     // Define constants
     const cameraOpen = document.querySelector("#camera--open"),
         cameraView = document.querySelector("#camera--view"),
@@ -164,8 +169,8 @@
         cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
         // cameraOutput.src = cameraSensor.toDataURL("image/jpeg");
 
-        var base64String = cameraSensor.toDataURL("image/jpg").replace("data:", "").replace(/^.+,/, "");
-        var contentType = 'image/jpg';
+        var base64String = cameraSensor.toDataURL("image/jpeg").replace("data:", "").replace(/^.+,/, "");
+        var contentType = 'image/jpeg';
         // Decode the Base64 string
         var byteCharacters = atob(base64String);
 
