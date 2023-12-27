@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ZXing PDF417 example</title>
+    <script src="./BigInteger.min.js"></script>
+    <script src="../dist/zxing-pdf417.js"></script>
+    <!-- <script src="//code.jquery.com/jquery-2.1.4.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://code.angularjs.org/1.6.9/angular.js"></script>
+    <script type="text/javascript">
+        (function(window, $, undefined) {
+            $(function() {
+
+                function handleFiles(f) {
+                    $('#camera--view').hide();
+                    $('#camera--trigger').hide();
+                    $('#camera--output').show();
+                    var img = $('img');
+                    img[0].src = URL.createObjectURL(f.target.files[0]);
+                    sessionStorage.setItem('ImageSrc', img[0].src);
+                    console.log('img[0].src:', img[0].src);
+                    console.log('IMAGE:', img[0]);
+                    console.log('f.target.files[0]:', f.target.files[0]);
+                }
+
+                function doScan(image) {
+                    sessionStorage.setItem('ImageSrc', image.src);
+                    console.log('image.src:', image.src);
+                    var
+                        canvas = document.createElement('canvas'),
+                        canvas_context = canvas.getContext('2d'),
+                        source,
+                        binarizer,
+                        bitmap;
+
+                    $('.error').empty();
+                    $('.decodedText').empty();
+
+                    canvas.width = image.naturalWidth;
+                    canvas.height = image.naturalHeight;
+                    canvas_context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                    try {
+                        source = new ZXing.BitmapLuminanceSource(canvas_context, image);
+                        console.log('source:', source);
+                        binarizer = new ZXing.Common.HybridBinarizer(source);
+                        console.log('binarizer:', binarizer);
+                        bitmap = new ZXing.BinaryBitmap(binarizer);
+                        console.log('bitmap:', bitmap);
+                        $('.decodedText').text(JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4));
+                        console.log(JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4));
+                        const decodeJson = JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4);
+                        // const decodedText = decodeJson.concat('Text');
+                        // console.log(decodedText)
+                    } catch (err) {
+                        $('.error').text(err);
+                    }
+                }
+
+                $('#decode--pdf').click(function() {
+                    doScan($('img')[0]);
+                    console.log($('img')[0]);
+                });
+
+                // $('img').load(function() {
+                //     doScan($('img')[0]);
+                // });
+
+                $('#file').change(handleFiles);
+            });
+        })(window, window.jQuery);
+    </script>
+    <style>
+        .decodedText {
+            overflow: scroll;
+            max-width: 48%;
+            height: 500px;
+        }
+
+        .error {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <!-- <form> -->
+    <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0 20px 0;">
+        <input type="file" id="file" accept=".jpg, .jpeg, .png" style="width: 40%;" />
+        <button type="button" id="decode--pdf" >Decode</button>
+        <!-- Camera trigger -->
+        <button id="camera--open">Open Camera</button>
+    </div>
+    <!-- Error message -->
+    <div class="error" style="display: flex; align-items: center; justify-content: center;"></div>
+    <!-- Camera -->
+    <div class="col" id="camera" style="display: flex; align-items: center; justify-content: center;">
+        <!-- Camera sensor -->
+        <div>
+            <canvas id="camera--sensor"></canvas>
+        </div>
+        <!-- Camera view -->
+        <div>
+            <video id="camera--view" autoplay playsinline></video>
+        </div>
+    </div>
+    <!-- Camera output -->
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+        <img src="./reverse_side_sample.jpg" alt="" id="camera--output" width="640">
+        <!-- <img src="./reverse_side_sample.jpg" width="640"/> -->
+    </div>
+    <!-- Camera trigger -->
+    <div style="display: flex; align-items: center; justify-content: center;">
+        <button ng-hide="false" id="camera--trigger" style="margin-bottom: 20px;">Take a picture</button>
+    </div>
+    <!-- Decoded text -->
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+        <textarea class="decodedText" style="max-width: 100%; width: 100%; height: 200px;" ></textarea>
+    </div>
+    <!-- </form> -->
+</div>
+<!-- Script for camera functions -->
+<!-- <script src="../camera.controller.js"></script> -->
+<script type="text/javascript">
+    // Set constraints for the video stream
+    var constraints = { video: { facingMode: "" }, audio: false };
+    // Define constants
+    const cameraOpen = document.querySelector("#camera--open"),
+        cameraView = document.querySelector("#camera--view"),
+        cameraOutput = document.querySelector("#camera--output"),
+        cameraSensor = document.querySelector("#camera--sensor"),
+        cameraTrigger = document.querySelector("#camera--trigger");
+        // openFile = document.querySelector("#file");
+    $(cameraView).hide();
+    // $(cameraOutput).hide();
+    $(cameraSensor).hide();
+    $(cameraTrigger).hide();
+    // Access the device camera and stream to cameraView
+    cameraOpen.onclick = function() {
+        $('#decode--pdf').prop('disabled', true);
+        sessionStorage.setItem('ImageSrc', null);
+        $(cameraOutput).hide();
+        $('.decodedText').empty();
+        navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(function(stream) {
+            stream.getTracks()[0];
+            cameraView.srcObject = stream;
+        })
+        .catch(function(error) {
+            console.log("Oops. Something is broken.", error);
+        });
+        $(cameraView).show();
+        $(cameraTrigger).show();
+        // $("#camera--output.taken").hide();
+    };
+    // Take a picture when cameraTrigger is tapped
+    cameraTrigger.onclick = function(e) {
+        $('#decode--pdf').prop('disabled', false);
+        cameraSensor.width = cameraView.videoWidth;
+        cameraSensor.height = cameraView.videoHeight;
+        cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
+        // cameraOutput.src = cameraSensor.toDataURL("image/jpeg");
+
+        var base64String = cameraSensor.toDataURL("image/jpeg").replace("data:", "").replace(/^.+,/, "");
+        var contentType = 'image/jpeg';
+        // Decode the Base64 string
+        var byteCharacters = atob(base64String);
+
+        // Convert to an array of binary values
+        var byteArray = new Uint8Array(byteCharacters.length);
+        for (var i = 0; i < byteCharacters.length; i++) {
+            byteArray[i] = byteCharacters.charCodeAt(i);
+        }
+
+        // Create a Blob
+        var blobImage = new Blob([byteArray], { type: contentType });
+        var objectURL = URL.createObjectURL(blobImage);
+        cameraOutput.src = objectURL;
+
+        // cameraOutput.src = URL.createObjectURL(cameraSensor);
+        // cameraOutput.classList.add("taken");
+        // cameraView.ariaHidden.add("true");
+        sessionStorage.setItem('ImageSrc', objectURL);
+        $(cameraView).hide();
+        $(cameraOutput).show();
+        $(cameraSensor).hide();
+        $(cameraTrigger).hide();
+        console.log(cameraView);
+        console.log(cameraSensor);
+        console.log(cameraOutput);
+        console.log('objectURL', objectURL);
+    };
+</script>
+</body>
+</html>
