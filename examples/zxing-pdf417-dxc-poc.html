@@ -49,13 +49,32 @@
                         bitmap = new ZXing.BinaryBitmap(binarizer);
                         console.log('bitmap:', bitmap);
                         $('.decodedText').text(JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4));
-                        console.log(JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4));
-                        const decodeJson = JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4);
-                        // const decodedText = decodeJson.concat('Text');
-                        // console.log(decodedText)
+                        var decodeJson = JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4);
+                        var parseValue = JSON.parse(decodeJson);
+                        var textValue = parseValue[0].Text;
+                        var textArray = textValue.split('|');
+                        // Get the container element in the HTML where you want to add input elements
+                        var container = $('#map--textArray');
+
+                        // Dynamically create input elements and set their values using jQuery
+                        $.each(textArray, function(index, value) {
+                            var input = $('<input>').attr({
+                                type: 'text',
+                                value: value,
+                                style: 'display: flex;'
+                            });
+                            container.append(input);
+
+                            // Add a line break for better spacing
+                            // container.append('<br>');
+                        });
                     } catch (err) {
                         $('.error').text(err);
                     }
+                // console.log('decodeJson', decodeJson);
+                // console.log('parseValue', parseValue);
+                // console.log('textValue', textValue);
+                console.log('textArray', textArray);
                 }
 
                 $('#decode--pdf').click(function() {
@@ -118,6 +137,10 @@
     <!-- Decoded text -->
     <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
         <textarea class="decodedText" style="max-width: 100%; width: 100%; height: 200px;" ></textarea>
+    </div>
+    <!-- Splited text values -->
+    <div id="map--textArray" style="display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center;">
+        
     </div>
     <!-- </form> -->
 </div>
