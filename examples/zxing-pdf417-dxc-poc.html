@@ -157,7 +157,6 @@
 <script type="text/javascript">
     // Set constraints for the video stream
     var constraints = { video: {
-                    video: true,
                     facingMode: 'environment',
                     width: 3264,
                     height: 1836,
@@ -207,8 +206,8 @@
         cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
         // cameraOutput.src = cameraSensor.toDataURL("image/jpeg");
 
-        var base64String = cameraSensor.toDataURL("image/jpeg").replace("data:", "").replace(/^.+,/, "");
-        var contentType = 'image/jpeg';
+        var base64String = cameraSensor.toDataURL("image/jpg").replace("data:", "").replace(/^.+,/, "");
+        var contentType = 'image/jpg';
         // Decode the Base64 string
         var byteCharacters = atob(base64String);
 
