@@ -36,6 +36,7 @@
 
                     $('.error').empty();
                     $('.decodedText').empty();
+                    $('#map--textArray').empty();
 
                     canvas.width = image.naturalWidth;
                     canvas.height = image.naturalHeight;
@@ -51,23 +52,28 @@
                         $('.decodedText').text(JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4));
                         var decodeJson = JSON.stringify(ZXing.PDF417.PDF417Reader.decode(bitmap, null, false), null, 4);
                         var parseValue = JSON.parse(decodeJson);
-                        var textValue = parseValue[0].Text;
-                        var textArray = textValue.split('|');
-                        // Get the container element in the HTML where you want to add input elements
-                        var container = $('#map--textArray');
+                        console.log('parseValue:', parseValue.length);
+                        if (parseValue.length >= 1) {
+                            var textValue = parseValue[0].Text;
+                            var textArray = textValue.split('|');
+                            // Get the container element in the HTML where you want to add input elements
+                            var container = $('#map--textArray');
 
-                        // Dynamically create input elements and set their values using jQuery
-                        $.each(textArray, function(index, value) {
-                            var input = $('<input>').attr({
-                                type: 'text',
-                                value: value,
-                                style: 'display: flex;'
+                            // Dynamically create input elements and set their values using jQuery
+                            $.each(textArray, function(index, value) {
+                                var input = $('<input>').attr({
+                                    type: 'text',
+                                    value: value,
+                                    style: 'display: flex;'
+                                });
+                                container.append(input);
+
+                                // Add a line break for better spacing
+                                // container.append('<br>');
                             });
-                            container.append(input);
-
-                            // Add a line break for better spacing
-                            // container.append('<br>');
-                        });
+                        } else {
+                            $('.error').text('No barcodes detected.');
+                        }
                     } catch (err) {
                         $('.error').text(err);
                     }
@@ -171,6 +177,7 @@
         sessionStorage.setItem('ImageSrc', null);
         $(cameraOutput).hide();
         $('.decodedText').empty();
+        $('#map--textArray').empty();
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then(function(stream) {
