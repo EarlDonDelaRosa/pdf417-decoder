@@ -16,6 +16,7 @@
                     $('#camera--view').hide();
                     $('#camera--trigger').hide();
                     $('#camera--output').show();
+                    $('#decode--pdf').prop('disabled', false);
                     $('.error').empty();
                     var img = $('img');
                     img[0].src = URL.createObjectURL(f.target.files[0]);
@@ -206,8 +207,8 @@
         cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
         // cameraOutput.src = cameraSensor.toDataURL("image/jpeg");
 
-        var base64String = cameraSensor.toDataURL("image/jpeg").replace("data:", "").replace(/^.+,/, "");
-        var contentType = 'image/jpeg';
+        var base64String = cameraSensor.toDataURL("image/jpg").replace("data:", "").replace(/^.+,/, "");
+        var contentType = 'image/jpg';
         // Decode the Base64 string
         var byteCharacters = atob(base64String);
 
