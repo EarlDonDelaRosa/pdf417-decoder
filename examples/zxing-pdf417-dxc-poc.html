@@ -16,13 +16,14 @@
                     $('#camera--view').hide();
                     $('#camera--trigger').hide();
                     $('#camera--output').show();
+                    $('.error').empty();
                     var img = $('img');
                     img[0].src = URL.createObjectURL(f.target.files[0]);
                     sessionStorage.setItem('ImageSrc', img[0].src);
                     console.log('img[0].src:', img[0].src);
                     console.log('IMAGE:', img[0]);
                     console.log('f.target.files[0]:', f.target.files[0]);
-                }
+                };
 
                 function doScan(image) {
                     sessionStorage.setItem('ImageSrc', image.src);
@@ -88,9 +89,9 @@
                     console.log($('img')[0]);
                 });
 
-                // $('img').load(function() {
-                //     doScan($('img')[0]);
-                // });
+                $('img').load(function() {
+                    handleFiles
+                });
 
                 $('#file').change(handleFiles);
             });
@@ -178,6 +179,7 @@
         $(cameraOutput).hide();
         $('.decodedText').empty();
         $('#map--textArray').empty();
+        $('#file').val('');
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then(function(stream) {
